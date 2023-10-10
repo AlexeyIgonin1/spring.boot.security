@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+
+  app:
+    build: ./
+    container_name: 'java-app'
+    ports:
+      - '8080:8080'
+    restart: 'unless-stopped'
+    depends_on:
+      - 'app-db'
+#    networks:
+#      - 'internet'
+#      - 'appnet'
+
+  app-db:
+    image: 'postgres'
+    container_name: 'app-postgres'
+    restart: 'unless-stopped'
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'admin'
+      POSTGRES_DB: 'springboot'
+#    networks:
+#      - 'appnet'
+#networks:
+#  internet:
+#    name: 'internet'
+#    driver: 'bridge'
+#  appnet:
+#    name: 'appnet'
+#    driver: 'bridge'
