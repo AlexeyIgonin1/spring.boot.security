@@ -16,7 +16,7 @@
 	<properties>
 		<java.version>17</java.version>
 		<exec.mainClass>fully-qualified-class-name</exec.mainClass>
-		<jooq.version>3.18.0</jooq.version>
+		<jooq.version>3.18.6</jooq.version>
 	</properties>
 
 
@@ -86,19 +86,66 @@
 <!--			<artifactId>spring-boot-starter-jooq</artifactId>-->
 <!--		</dependency>-->
 
+<!--		<dependency>-->
+<!--			<groupId>org.jooq</groupId>-->
+<!--			<artifactId>jooq</artifactId>-->
+<!--			<version>${jooq.version}</version>-->
+<!--		</dependency>-->
+
+<!--		<dependency>-->
+<!--			<groupId>org.jooq</groupId>-->
+<!--			<artifactId>jooq-codegen-maven</artifactId>-->
+<!--			<version>${jooq.version}</version>-->
+<!--		</dependency>-->
+
+
+<!--		<dependency>-->
+<!--			<groupId>org.jooq</groupId>-->
+<!--			<artifactId>jooq</artifactId>-->
+<!--			<version>${jooq.version}</version>-->
+<!--		</dependency>-->
+
+<!--		&lt;!&ndash; These may not be required, unless you use the GenerationTool manually for code generation &ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>org.jooq</groupId>-->
+<!--			<artifactId>jooq-meta</artifactId>-->
+<!--			<version>${jooq.version}</version>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>org.jooq</groupId>-->
+<!--			<artifactId>jooq-codegen</artifactId>-->
+<!--			<version>${jooq.version}</version>-->
+<!--		</dependency>-->
+
+
+
 		<dependency>
 			<groupId>org.jooq</groupId>
 			<artifactId>jooq</artifactId>
 			<version>${jooq.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.jooq</groupId>
-			<artifactId>jooq-codegen-maven</artifactId>
+			<artifactId>jooq-meta</artifactId>
+			<version>${jooq.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jooq</groupId>
+			<artifactId>jooq-codegen</artifactId>
 			<version>${jooq.version}</version>
 		</dependency>
 
-
+		<!-- стартер для создания бинов jooq -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jooq</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.jooq</groupId>
+					<artifactId>jooq</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -108,22 +155,86 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 
 			</plugin>
+<!--			<plugin>-->
+<!--				<groupId>org.jooq</groupId>-->
+<!--				<artifactId>jooq-codegen-maven</artifactId>-->
+<!--			    <version>${jooq.version}</version>-->
+<!--				<executions>-->
+<!--					<execution>-->
+<!--						<phase>generate-sources</phase>-->
+<!--						<goals>-->
+<!--							<goal>generate</goal>-->
+<!--						</goals>-->
+<!--						<configuration>-->
+<!--							<configurationFile>src/main/resources/jooqconf.xml</configurationFile>-->
+<!--						</configuration>-->
+<!--					</execution>-->
+<!--				</executions>-->
+<!--			</plugin>-->
+
+
 			<plugin>
 				<groupId>org.jooq</groupId>
 				<artifactId>jooq-codegen-maven</artifactId>
-			    <version>${jooq.version}</version>
+				<version>${jooq.version}</version>
+
 				<executions>
+					<!-- Generate the required class from the database -->
 					<execution>
+						<id>generate-jooq</id>
 						<phase>generate-sources</phase>
 						<goals>
 							<goal>generate</goal>
 						</goals>
-						<configuration>
-							<configurationFile>src/main/resources/jooqconf.xml</configurationFile>
-						</configuration>
 					</execution>
 				</executions>
+
+				<configuration>
+					<!-- сюда подставляются настройки соединения с бд -->
+					<jdbc>
+						<driver>org.postgresql.Driver</driver>
+						<url>jdbc:postgresql://localhost:5432/springboot</url>
+						<user>postgres</user>
+						<password>admin</password>
+					</jdbc>
+					<!-- Generator parameters -->
+					<generator>
+						<name>org.jooq.codegen.DefaultGenerator</name>
+						<database>
+							<name>org.jooq.meta.postgres.PostgresDatabase</name>
+							<includes>.*</includes>
+<!--							<excludes />-->
+							<excludes></excludes>
+							<inputSchema>public</inputSchema>
+						</database>
+
+						<!-- Generate classes for tables and records -->
+						<generate>
+							<globalTableReferences>true</globalTableReferences>
+							<globalUDTReferences>false</globalUDTReferences>
+							<fluentSetters>true</fluentSetters>
+							<javaTimeTypes>true</javaTimeTypes>
+							<pojos>true</pojos>
+<!--							<deprecated>false</deprecated>-->
+<!--							<jpaAnnotations>false</jpaAnnotations>-->
+<!--							<validationAnnotations>true</validationAnnotations>-->
+<!--							<instanceFields>false</instanceFields>-->
+<!--							<records>false</records>-->
+<!--							<immutablePojos>false</immutablePojos>-->
+<!--							<relations>true</relations>-->
+<!--							<globalObjectReferences>false</globalObjectReferences>-->
+
+						</generate>
+						<!-- Configure the target package and directory -->
+						<target>
+							<packageName>com.example.db</packageName>
+							<directory>target/generated-sources/jooq</directory>
+						</target>
+
+					</generator>
+				</configuration>
 			</plugin>
 		</plugins>
+
 	</build>
 </project>
